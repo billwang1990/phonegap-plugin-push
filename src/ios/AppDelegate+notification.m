@@ -9,6 +9,7 @@
 #import "AppDelegate+notification.h"
 #import "PushPlugin.h"
 #import <objc/runtime.h>
+#import "GeTuiSdk.h"
 
 static char launchNotificationKey;
 
@@ -50,11 +51,21 @@ static char launchNotificationKey;
         if (launchOptions)
             self.launchNotification = [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"];
     }
+    
+    [self startSdkWith:[AppDelegate getGetuiConfig:CONFIG_APPID] appKey:[AppDelegate getGetuiConfig:CONFIG_APPKEY] appSecret:[AppDelegate getGetuiConfig:CONFIG_APPSECRET]];
+    
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
     [pushHandler didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    
+    NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet:[
+                                                                                  NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSLog(@"\n>>>[DeviceToken Success]:%@\n\n", token);
+
+    [GeTuiSdk registerDeviceToken:token];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
@@ -162,6 +173,52 @@ static char launchNotificationKey;
 - (void)dealloc
 {
     self.launchNotification = nil; // clear the association and release the object
+}
+
+
+typedef enum{
+    CONFIG_APPID,
+    CONFIG_APPKEY,
+    CONFIG_APPSECRET
+} GETUI_CONFIG_KEY;
+
+
++ (NSString *)getGetuiConfig:(GETUI_CONFIG_KEY)key
+{
+    NSString *retValue = @"unknown";
+    NSString *sKey = @"unknowKey" ;
+    switch(key){
+        case CONFIG_APPID:
+            sKey = @"com.getui.kGTAppId";
+            break;
+        case CONFIG_APPKEY:
+            sKey = @"com.getui.kGTAppKey";
+            break;
+        case CONFIG_APPSECRET:
+            sKey = @"com.getui.kGTAppSecret";
+            break;
+    }
+    
+    NSString *configPath = [[NSBundle mainBundle] pathForResource:@"gtsdk" ofType:@"plist"];
+    NSDictionary *configs = [NSDictionary dictionaryWithContentsOfFile:configPath];
+    if (configs) {
+        NSString *dictValue = configs[sKey];
+        if (dictValue && [dictValue isKindOfClass:[NSString class]] && dictValue.length) {
+            retValue = dictValue;
+        }
+    }
+    
+    return retValue;
+    
+}
+
+- (void)startSdkWith:(NSString *)appID appKey:(NSString *)appKey appSecret:(NSString *)appSecret
+{
+    PushPlugin *pushHandler = [self getCommandInstance:@"PushNotification"];
+    
+    //[1-1]:通过 AppId、 appKey 、appSecret 启动SDK
+    //该方法需要在主线程中调用
+    [GeTuiSdk startSdkWithAppId:appID appKey:appKey appSecret:appSecret delegate:pushHandler];
 }
 
 @end

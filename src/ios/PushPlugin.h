@@ -26,8 +26,9 @@
 #import <Foundation/Foundation.h>
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
+#import "GeTuiSdk.h"
 
-@interface PushPlugin : CDVPlugin
+@interface PushPlugin : CDVPlugin<GeTuiSdkDelegate>
 {
     NSDictionary *notificationMessage;
     BOOL    isInline;

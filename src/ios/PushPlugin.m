@@ -346,4 +346,10 @@
     }
 }
 
+#pragma mark GeTui delegate
+- (void)GeTuiSdkDidRegisterClient:(NSString *)clientId {
+    NSLog(@"\n>>>[GeTuiSdk RegisterClient]:%@\n\n", clientId);
+}
+
+
 @end
