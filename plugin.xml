@@ -125,8 +125,8 @@
 		<header-file src="src/ios/AppDelegate+notification.h" />
 		<header-file src="src/ios/PushPlugin.h" />
 
-        <header-file src="src/ios/GtSdkLib-noidfa/GeTuiSdk.h" target-dir="GtSdkLib"/>
-        <source-file src="src/ios/GtSdkLib-noidfa/libGeTuiSdk-1.5.0-noidfa" framework="true"/>
+        <header-file src="src/ios/GtSdkLib-noidfa/GeTuiSdk.h" />
+        <source-file src="src/ios/GtSdkLib-noidfa/libGeTuiSdk-1.5.0-noidfa.a" framework="true"/>
 
         <framework src="libsqlite3.tbd" />
         <framework src="libz.tbd" />
